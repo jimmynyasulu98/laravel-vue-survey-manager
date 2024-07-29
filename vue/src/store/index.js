@@ -5,21 +5,42 @@ const store = createStore({
 
     state: {
         user: {
-            data:{
-                name: "John Doe",
-                email: 'john@example.com',
-                imageUrl:
-                  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-            },
-
-            token: '223'
+            data: {},
+            token: sessionStorage.getItem("TOKEN"),
         }
     },
     getters: {},
-    actions: {},
+    actions: {
+        register({commit}, user) {
+          return fetch('http://127.0.0.1:8000/api/register',{
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify(user),
+          })
+          .then((resp) => resp.json() )
+          .then((resp) => {
+            commit("setUser", resp);
+          });
+        },
+    },
+
     mutations:{
+
+        setUser: (state, userData) => {
+            state.user.data = userData.user;
+            state.user.token = userData.token;
+            sessionStorage.setItem('TOKEN', userData.token);
+          },
+        setToken: (state, token) => {
+        state.user.token = token;
+        sessionStorage.setItem('TOKEN', token);
+          },
+
         logout: (state) => {
-            state.user.token = null;
+            state.user.token = sessionStorage.setItem('TOKEN', null);
             state.user.data = {};
         },
     },
